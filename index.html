@@ -6,7 +6,7 @@
     <meta name="theme-color" content="#e2231a" />
     <meta name="description" content="Explore spoiled GRE, spin echo and FLAIR MRI contrast in a browser-based teaching simulation." />
     <title>MRI Contrast Lab</title>
-    <link rel="stylesheet" href="styles.css?v=contrast-6" />
+    <link rel="stylesheet" href="styles.css?v=contrast-7" />
     <link rel="icon" href="favicon.svg?v=1" type="image/svg+xml" sizes="any">
   </head>
   <body>
@@ -83,24 +83,46 @@
               <input id="greFA" type="range" min="0" max="100" step="1" value="17" />
               <div class="range-labels"><span>0°</span><span>100°</span></div>
             </div>
-            <div class="number-pair">
-              <label>TR <span>ms</span><input id="greTR" type="number" min="1" step="1" value="10" /></label>
-              <label>TE <span>ms</span><input id="greTE" type="number" min="0.1" step="0.1" value="1" /></label>
+            <div class="control-group sequence-slider">
+              <div class="control-title"><label for="greTR">Repetition time, TR</label><output id="greTRValue">10 ms</output></div>
+              <input id="greTR" type="range" min="2" max="100" step="1" value="10" />
+              <div class="range-labels"><span>2 ms</span><span>100 ms</span></div>
+            </div>
+            <div class="control-group sequence-slider">
+              <div class="control-title"><label for="greTE">Echo time, TE</label><output id="greTEValue">1 ms</output></div>
+              <input id="greTE" type="range" min="0.1" max="30" step="0.1" value="1" />
+              <div class="range-labels"><span>0.1 ms</span><span>30 ms</span></div>
             </div>
           </div>
 
           <div class="control-panel" id="seControls" hidden>
-            <div class="number-pair">
-              <label>TR <span>ms</span><input id="seTR" type="number" min="1" step="1" value="1000" /></label>
-              <label>TE <span>ms</span><input id="seTE" type="number" min="0.1" step="0.1" value="10" /></label>
+            <div class="control-group sequence-slider">
+              <div class="control-title"><label for="seTR">Repetition time, TR</label><output id="seTRValue">1000 ms</output></div>
+              <input id="seTR" type="range" min="100" max="5000" step="50" value="1000" />
+              <div class="range-labels"><span>100 ms</span><span>5000 ms</span></div>
+            </div>
+            <div class="control-group sequence-slider">
+              <div class="control-title"><label for="seTE">Echo time, TE</label><output id="seTEValue">10 ms</output></div>
+              <input id="seTE" type="range" min="1" max="300" step="1" value="10" />
+              <div class="range-labels"><span>1 ms</span><span>300 ms</span></div>
             </div>
           </div>
 
           <div class="control-panel" id="flairControls" hidden>
-            <div class="number-field"><label for="flairTI">Inversion time, TI <span>ms</span></label><input id="flairTI" type="number" min="0" step="1" value="458" /></div>
-            <div class="number-pair">
-              <label>TR <span>ms</span><input id="flairTR" type="number" min="1" step="1" value="1000" /></label>
-              <label>TE <span>ms</span><input id="flairTE" type="number" min="0.1" step="0.1" value="180" /></label>
+            <div class="control-group sequence-slider">
+              <div class="control-title"><label for="flairTI">Inversion time, TI</label><output id="flairTIValue">458 ms</output></div>
+              <input id="flairTI" type="range" min="0" max="3000" step="1" value="458" />
+              <div class="range-labels"><span>0 ms</span><span>3000 ms</span></div>
+            </div>
+            <div class="control-group sequence-slider">
+              <div class="control-title"><label for="flairTR">Repetition time, TR</label><output id="flairTRValue">1000 ms</output></div>
+              <input id="flairTR" type="range" min="100" max="10000" step="50" value="1000" />
+              <div class="range-labels"><span>100 ms</span><span>10000 ms</span></div>
+            </div>
+            <div class="control-group sequence-slider">
+              <div class="control-title"><label for="flairTE">Echo time, TE</label><output id="flairTEValue">180 ms</output></div>
+              <input id="flairTE" type="range" min="1" max="300" step="1" value="180" />
+              <div class="range-labels"><span>1 ms</span><span>300 ms</span></div>
             </div>
           </div>
 
@@ -151,6 +173,6 @@
     </main>
 
     <footer><p>Educational contrast simulation · Runs locally in this browser · No MATLAB required</p></footer>
-    <script type="module" src="app.js?v=contrast-6"></script>
+    <script type="module" src="app.js?v=contrast-7"></script>
   </body>
 </html>

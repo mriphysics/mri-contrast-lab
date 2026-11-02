@@ -120,6 +120,8 @@ input[type="range"]::-moz-range-thumb { width: 13px; height: 13px; background: #
 .number-pair label span, .number-field label span { color: var(--muted); font: 600 .64rem var(--mono); }
 .number-pair input, .number-field input { width: 100%; margin-top: 7px; padding: 10px; color: var(--navy); background: #fff; border: 1px solid var(--line-bright); font: 750 .78rem var(--mono); }
 .number-field { padding: 20px 0 0; }
+.sequence-slider { padding-top: 16px; padding-bottom: 12px; }
+.sequence-slider input[type="range"] { margin-top: 11px; }
 .averaging-control { padding-top: 18px; }
 .averaging-control p { margin: 9px 0 0; color: var(--muted); font-size: .68rem; line-height: 1.4; }
 .formula-card { margin-top: 20px; padding: 13px; color: var(--navy); background: #fff; border: 1px solid var(--line); border-top: 3px solid var(--red); }

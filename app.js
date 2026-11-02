@@ -1,8 +1,10 @@
-import { WIDTH, HEIGHT, TISSUES, spoiledGreSignal, spinEchoSignal, flairSignal, makeNoise, scaleToGray, noiseSigmaForAverages, acquisitionTimeSeconds } from "./contrast.js?v=contrast-6";
+import { WIDTH, HEIGHT, TISSUES, spoiledGreSignal, spinEchoSignal, flairSignal, makeNoise, scaleToGray, noiseSigmaForAverages, acquisitionTimeSeconds } from "./contrast.js?v=contrast-7";
 
 const els = Object.fromEntries([
   "greMode", "seMode", "flairMode", "greControls", "seControls", "flairControls",
-  "greFA", "greFAValue", "greTR", "greTE", "seTR", "seTE", "flairTI", "flairTR", "flairTE",
+  "greFA", "greFAValue", "greTR", "greTRValue", "greTE", "greTEValue",
+  "seTR", "seTRValue", "seTE", "seTEValue",
+  "flairTI", "flairTIValue", "flairTR", "flairTRValue", "flairTE", "flairTEValue",
   "sequenceDescription", "formulaReadout", "tipText", "imageCanvas", "imageTitle", "status",
   "sequenceReadout", "parameterReadout", "rangeReadout", "acquisitionReadout", "scaleMax", "scaleMin", "interpretation",
   "nex", "nexValue",
@@ -158,11 +160,18 @@ function setMode(nextMode) {
 }
 
 function scheduleUpdate() {
-  els.greFAValue.value = `${format(Number(els.greFA.value))}°`;
+  updateSliderOutputs();
   els.nexValue.value = `${Math.round(Number(els.nex.value))}`;
   els.status.textContent = "Updating";
   clearTimeout(updateTimer);
   updateTimer = setTimeout(simulate, 30);
+}
+
+function updateSliderOutputs() {
+  els.greFAValue.value = `${format(Number(els.greFA.value))}°`;
+  for (const name of ["greTR", "greTE", "seTR", "seTE", "flairTI", "flairTR", "flairTE"]) {
+    els[`${name}Value`].value = `${format(Number(els[name].value))} ms`;
+  }
 }
 
 function reset() {
