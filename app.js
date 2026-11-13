@@ -1,4 +1,4 @@
-import { WIDTH, HEIGHT, TISSUES, spoiledGreSignal, spinEchoSignal, flairSignal, makeNoise, scaleToGray, noiseSigmaForAverages, acquisitionTimeSeconds } from "./contrast.js?v=contrast-8";
+import { WIDTH, HEIGHT, TISSUES, spoiledGreSignal, spinEchoSignal, flairSignal, makeNoise, scaleToGray, noiseSigmaForAverages, acquisitionTimeSeconds } from "./contrast.js?v=contrast-9";
 
 const els = Object.fromEntries([
   "greMode", "seMode", "flairMode", "greControls", "seControls", "flairControls",
@@ -59,11 +59,19 @@ function positiveNumber(input, minimum) {
   return Number.isFinite(value) ? Math.max(minimum, value) : minimum;
 }
 
+function logarithmicMilliseconds(input) {
+  return Math.round(10 ** Number(input.value));
+}
+
+function setLogarithmicMilliseconds(input, milliseconds) {
+  input.value = String(Math.log10(milliseconds));
+}
+
 function parameters() {
   const nex = Math.round(positiveNumber(els.nex, 1));
-  if (mode === "gre") return { fa: positiveNumber(els.greFA, 0), tr: positiveNumber(els.greTR, 1), te: positiveNumber(els.greTE, .1), nex };
-  if (mode === "se") return { tr: positiveNumber(els.seTR, 1), te: positiveNumber(els.seTE, .1), nex };
-  return { ti: positiveNumber(els.flairTI, 0), tr: positiveNumber(els.flairTR, 1), te: positiveNumber(els.flairTE, .1), nex };
+  if (mode === "gre") return { fa: positiveNumber(els.greFA, 0), tr: logarithmicMilliseconds(els.greTR), te: positiveNumber(els.greTE, .1), nex };
+  if (mode === "se") return { tr: logarithmicMilliseconds(els.seTR), te: positiveNumber(els.seTE, .1), nex };
+  return { ti: positiveNumber(els.flairTI, 0), tr: logarithmicMilliseconds(els.flairTR), te: positiveNumber(els.flairTE, .1), nex };
 }
 
 function tissueSignals(config) {
@@ -76,14 +84,14 @@ function timingValidation(config) {
   if ((mode === "gre" || mode === "se") && config.te >= config.tr) {
     return {
       valid: false,
-      message: `TE must be shorter than TR. Current selection: TE ${format(config.te)} ms, TR ${format(config.tr)} ms.`,
+      message: `TE must be shorter than TR. Current selection: TE ${formatTiming(config.te)}, TR ${formatTiming(config.tr)}.`,
       inputs: mode === "gre" ? [els.greTR, els.greTE] : [els.seTR, els.seTE],
     };
   }
   if (mode === "flair" && config.ti + config.te >= config.tr) {
     return {
       valid: false,
-      message: `TI + TE must be shorter than TR. Current selection: ${format(config.ti + config.te)} ms ≥ ${format(config.tr)} ms.`,
+      message: `TI + TE must be shorter than TR. Current selection: ${formatTiming(config.ti + config.te)} ≥ ${formatTiming(config.tr)}.`,
       inputs: [els.flairTI, els.flairTR, els.flairTE],
     };
   }
@@ -159,10 +167,10 @@ function updateParameterReadouts(config) {
   els.imageTitle.textContent = model.title;
   els.sequenceReadout.textContent = model.short;
   els.parameterReadout.textContent = mode === "gre"
-    ? `FA ${format(config.fa)}° · TR ${format(config.tr)} ms · TE ${format(config.te)} ms · NEX ${config.nex}`
+    ? `FA ${format(config.fa)}° · TR ${formatTiming(config.tr)} · TE ${formatTiming(config.te)} · NEX ${config.nex}`
     : mode === "se"
-      ? `TR ${format(config.tr)} ms · TE ${format(config.te)} ms · NEX ${config.nex}`
-      : `TI ${format(config.ti)} ms · TR ${format(config.tr)} ms · TE ${format(config.te)} ms · NEX ${config.nex}`;
+      ? `TR ${formatTiming(config.tr)} · TE ${formatTiming(config.te)} · NEX ${config.nex}`
+      : `TI ${formatTiming(config.ti)} · TR ${formatTiming(config.tr)} · TE ${formatTiming(config.te)} · NEX ${config.nex}`;
   els.acquisitionReadout.textContent = formatDuration(acquisitionTimeSeconds(config.tr, HEIGHT, config.nex));
 }
 
@@ -217,15 +225,20 @@ function scheduleUpdate() {
 
 function updateSliderOutputs() {
   els.greFAValue.value = `${format(Number(els.greFA.value))}°`;
-  for (const name of ["greTR", "greTE", "seTR", "seTE", "flairTI", "flairTR", "flairTE"]) {
+  for (const name of ["greTE", "seTE", "flairTI", "flairTE"]) {
     els[`${name}Value`].value = `${format(Number(els[name].value))} ms`;
+  }
+  for (const name of ["greTR", "seTR", "flairTR"]) {
+    const timing = formatTiming(logarithmicMilliseconds(els[name]));
+    els[`${name}Value`].value = timing;
+    els[name].setAttribute("aria-valuetext", timing);
   }
 }
 
 function reset() {
-  els.greFA.value = "17"; els.greTR.value = "10"; els.greTE.value = "1";
-  els.seTR.value = "1000"; els.seTE.value = "10";
-  els.flairTI.value = "458"; els.flairTR.value = "1000"; els.flairTE.value = "180";
+  els.greFA.value = "17"; setLogarithmicMilliseconds(els.greTR, 10); els.greTE.value = "1";
+  setLogarithmicMilliseconds(els.seTR, 1000); els.seTE.value = "10";
+  els.flairTI.value = "458"; setLogarithmicMilliseconds(els.flairTR, 1000); els.flairTE.value = "180";
   els.nex.value = "1";
   noise = makeNoise(WIDTH * HEIGHT);
   setContrastMode("auto");
@@ -233,6 +246,11 @@ function reset() {
 }
 
 function format(value) { return Number.isInteger(value) ? value.toFixed(0) : value.toFixed(1); }
+
+function formatTiming(milliseconds) {
+  if (milliseconds >= 1000) return `${format(milliseconds / 1000)} s`;
+  return `${format(milliseconds)} ms`;
+}
 
 function formatDuration(seconds) {
   if (seconds < 60) return `${seconds < 10 ? seconds.toFixed(2) : seconds.toFixed(1)} s`;

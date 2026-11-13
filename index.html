@@ -6,7 +6,7 @@
     <meta name="theme-color" content="#e2231a" />
     <meta name="description" content="Explore spoiled GRE, spin echo and FLAIR MRI contrast in a browser-based teaching simulation." />
     <title>MRI Contrast Lab</title>
-    <link rel="stylesheet" href="styles.css?v=contrast-8" />
+    <link rel="stylesheet" href="styles.css?v=contrast-9" />
     <link rel="icon" href="favicon.svg?v=1" type="image/svg+xml" sizes="any">
   </head>
   <body>
@@ -93,8 +93,8 @@
             </div>
             <div class="control-group sequence-slider">
               <div class="control-title"><label for="greTR">Repetition time, TR</label><output id="greTRValue">10 ms</output></div>
-              <input id="greTR" type="range" min="2" max="10000" step="1" value="10" />
-              <div class="range-labels"><span>2 ms</span><span>10 s</span></div>
+              <input id="greTR" type="range" min="0.301" max="4" step="0.001" value="1" aria-valuetext="10 ms" />
+              <div class="range-labels log-range-labels" aria-hidden="true"><span style="--position: 0%">2 ms</span><span style="--position: 18.9%">10 ms</span><span style="--position: 45.9%">100 ms</span><span style="--position: 73%">1 s</span><span style="--position: 100%">10 s</span></div>
             </div>
             <div class="control-group sequence-slider">
               <div class="control-title"><label for="greTE">Echo time, TE</label><output id="greTEValue">1 ms</output></div>
@@ -106,8 +106,8 @@
           <div class="control-panel" id="seControls" hidden>
             <div class="control-group sequence-slider">
               <div class="control-title"><label for="seTR">Repetition time, TR</label><output id="seTRValue">1000 ms</output></div>
-              <input id="seTR" type="range" min="100" max="10000" step="50" value="1000" />
-              <div class="range-labels"><span>100 ms</span><span>10 s</span></div>
+              <input id="seTR" type="range" min="2" max="4" step="0.001" value="3" aria-valuetext="1 s" />
+              <div class="range-labels log-range-labels" aria-hidden="true"><span style="--position: 0%">100 ms</span><span style="--position: 50%">1 s</span><span style="--position: 100%">10 s</span></div>
             </div>
             <div class="control-group sequence-slider">
               <div class="control-title"><label for="seTE">Echo time, TE</label><output id="seTEValue">10 ms</output></div>
@@ -124,8 +124,8 @@
             </div>
             <div class="control-group sequence-slider">
               <div class="control-title"><label for="flairTR">Repetition time, TR</label><output id="flairTRValue">1000 ms</output></div>
-              <input id="flairTR" type="range" min="100" max="10000" step="50" value="1000" />
-              <div class="range-labels"><span>100 ms</span><span>10 s</span></div>
+              <input id="flairTR" type="range" min="2" max="4" step="0.001" value="3" aria-valuetext="1 s" />
+              <div class="range-labels log-range-labels" aria-hidden="true"><span style="--position: 0%">100 ms</span><span style="--position: 50%">1 s</span><span style="--position: 100%">10 s</span></div>
             </div>
             <div class="control-group sequence-slider">
               <div class="control-title"><label for="flairTE">Echo time, TE</label><output id="flairTEValue">180 ms</output></div>
@@ -181,6 +181,6 @@
     </main>
 
     <footer><p>Educational contrast simulation · Runs locally in this browser · No MATLAB required</p></footer>
-    <script type="module" src="app.js?v=contrast-8"></script>
+    <script type="module" src="app.js?v=contrast-9"></script>
   </body>
 </html>
