@@ -6,7 +6,7 @@
     <meta name="theme-color" content="#e2231a" />
     <meta name="description" content="Explore spoiled GRE, spin echo and FLAIR MRI contrast in a browser-based teaching simulation." />
     <title>MRI Contrast Lab</title>
-    <link rel="stylesheet" href="styles.css?v=contrast-7" />
+    <link rel="stylesheet" href="styles.css?v=contrast-8" />
     <link rel="icon" href="favicon.svg?v=1" type="image/svg+xml" sizes="any">
   </head>
   <body>
@@ -48,6 +48,10 @@
             </div>
             <div class="image-stage">
               <canvas id="imageCanvas" width="256" height="256" aria-label="Simulated axial brain MR image in a square field of view"></canvas>
+              <div class="image-warning" id="imageWarning" hidden>
+                <strong>Timing not feasible</strong>
+                <span>The selected timing cannot form this sequence.</span>
+              </div>
               <div class="colorbar" aria-label="Signal intensity scale">
                 <span id="scaleMax">—</span><i aria-hidden="true"></i><span id="scaleMin">—</span>
               </div>
@@ -76,6 +80,10 @@
           </div>
 
           <p class="panel-intro" id="sequenceDescription">Spoiled gradient echo contrast depends on flip angle, TR, T1 and T2* decay during TE.</p>
+          <div class="timing-warning" id="timingWarning" role="alert" hidden>
+            <strong>Timing not feasible</strong>
+            <span id="timingWarningText"></span>
+          </div>
 
           <div class="control-panel" id="greControls">
             <div class="control-group">
@@ -85,8 +93,8 @@
             </div>
             <div class="control-group sequence-slider">
               <div class="control-title"><label for="greTR">Repetition time, TR</label><output id="greTRValue">10 ms</output></div>
-              <input id="greTR" type="range" min="2" max="100" step="1" value="10" />
-              <div class="range-labels"><span>2 ms</span><span>100 ms</span></div>
+              <input id="greTR" type="range" min="2" max="10000" step="1" value="10" />
+              <div class="range-labels"><span>2 ms</span><span>10 s</span></div>
             </div>
             <div class="control-group sequence-slider">
               <div class="control-title"><label for="greTE">Echo time, TE</label><output id="greTEValue">1 ms</output></div>
@@ -98,8 +106,8 @@
           <div class="control-panel" id="seControls" hidden>
             <div class="control-group sequence-slider">
               <div class="control-title"><label for="seTR">Repetition time, TR</label><output id="seTRValue">1000 ms</output></div>
-              <input id="seTR" type="range" min="100" max="5000" step="50" value="1000" />
-              <div class="range-labels"><span>100 ms</span><span>5000 ms</span></div>
+              <input id="seTR" type="range" min="100" max="10000" step="50" value="1000" />
+              <div class="range-labels"><span>100 ms</span><span>10 s</span></div>
             </div>
             <div class="control-group sequence-slider">
               <div class="control-title"><label for="seTE">Echo time, TE</label><output id="seTEValue">10 ms</output></div>
@@ -117,7 +125,7 @@
             <div class="control-group sequence-slider">
               <div class="control-title"><label for="flairTR">Repetition time, TR</label><output id="flairTRValue">1000 ms</output></div>
               <input id="flairTR" type="range" min="100" max="10000" step="50" value="1000" />
-              <div class="range-labels"><span>100 ms</span><span>10000 ms</span></div>
+              <div class="range-labels"><span>100 ms</span><span>10 s</span></div>
             </div>
             <div class="control-group sequence-slider">
               <div class="control-title"><label for="flairTE">Echo time, TE</label><output id="flairTEValue">180 ms</output></div>
@@ -173,6 +181,6 @@
     </main>
 
     <footer><p>Educational contrast simulation · Runs locally in this browser · No MATLAB required</p></footer>
-    <script type="module" src="app.js?v=contrast-7"></script>
+    <script type="module" src="app.js?v=contrast-8"></script>
   </body>
 </html>

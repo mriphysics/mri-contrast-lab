@@ -1,4 +1,4 @@
-import { WIDTH, HEIGHT, TISSUES, spoiledGreSignal, spinEchoSignal, flairSignal, makeNoise, scaleToGray, noiseSigmaForAverages, acquisitionTimeSeconds } from "./contrast.js?v=contrast-7";
+import { WIDTH, HEIGHT, TISSUES, spoiledGreSignal, spinEchoSignal, flairSignal, makeNoise, scaleToGray, noiseSigmaForAverages, acquisitionTimeSeconds } from "./contrast.js?v=contrast-8";
 
 const els = Object.fromEntries([
   "greMode", "seMode", "flairMode", "greControls", "seControls", "flairControls",
@@ -6,6 +6,7 @@ const els = Object.fromEntries([
   "seTR", "seTRValue", "seTE", "seTEValue",
   "flairTI", "flairTIValue", "flairTR", "flairTRValue", "flairTE", "flairTEValue",
   "sequenceDescription", "formulaReadout", "tipText", "imageCanvas", "imageTitle", "status",
+  "timingWarning", "timingWarningText", "imageWarning",
   "sequenceReadout", "parameterReadout", "rangeReadout", "acquisitionReadout", "scaleMax", "scaleMin", "interpretation",
   "nex", "nexValue",
   "autoContrast", "fixedContrast", "fixedRange", "contrastLower", "contrastUpper", "resetButton", "howButton",
@@ -71,9 +72,51 @@ function tissueSignals(config) {
   return TISSUES.map((tissue) => flairSignal(tissue, config.ti, config.tr, config.te));
 }
 
+function timingValidation(config) {
+  if ((mode === "gre" || mode === "se") && config.te >= config.tr) {
+    return {
+      valid: false,
+      message: `TE must be shorter than TR. Current selection: TE ${format(config.te)} ms, TR ${format(config.tr)} ms.`,
+      inputs: mode === "gre" ? [els.greTR, els.greTE] : [els.seTR, els.seTE],
+    };
+  }
+  if (mode === "flair" && config.ti + config.te >= config.tr) {
+    return {
+      valid: false,
+      message: `TI + TE must be shorter than TR. Current selection: ${format(config.ti + config.te)} ms ≥ ${format(config.tr)} ms.`,
+      inputs: [els.flairTI, els.flairTR, els.flairTE],
+    };
+  }
+  return { valid: true, message: "", inputs: [] };
+}
+
+function showTimingValidation(validation) {
+  const allTimingInputs = [els.greTR, els.greTE, els.seTR, els.seTE, els.flairTI, els.flairTR, els.flairTE];
+  for (const input of allTimingInputs) {
+    const invalid = validation.inputs.includes(input);
+    input.setAttribute("aria-invalid", String(invalid));
+    input.closest(".control-group")?.classList.toggle("invalid", invalid);
+  }
+  els.timingWarning.hidden = validation.valid;
+  els.imageWarning.hidden = validation.valid;
+  els.timingWarningText.textContent = validation.message;
+  els.imageWarning.querySelector("span").textContent = validation.message;
+}
+
 function simulate() {
   if (!tissueMap) return;
   const config = parameters();
+  const validation = timingValidation(config);
+  showTimingValidation(validation);
+  if (!validation.valid) {
+    updateParameterReadouts(config);
+    els.rangeReadout.textContent = "Not available";
+    els.scaleMax.textContent = "—";
+    els.scaleMin.textContent = "—";
+    els.interpretation.textContent = "No image is calculated for an infeasible sequence. Adjust the highlighted timing controls until the sequence timing rule is satisfied.";
+    els.status.textContent = "Timing invalid";
+    return;
+  }
   const lookup = tissueSignals(config);
   const values = new Float32Array(tissueMap.length);
   let minimum = Infinity, maximum = -Infinity;
@@ -104,6 +147,15 @@ function drawImage(values, minimum, maximum) {
 
 function updateReadouts(config, minimum, maximum, displayMinimum, displayMaximum) {
   const model = MODELS[mode];
+  updateParameterReadouts(config);
+  els.rangeReadout.textContent = `${minimum.toFixed(3)} to ${maximum.toFixed(3)}`;
+  els.scaleMax.textContent = displayMaximum.toFixed(3);
+  els.scaleMin.textContent = displayMinimum.toFixed(3);
+  els.interpretation.textContent = `${model.interpretation} With NEX ${config.nex}, the noise standard deviation is σ = ${noiseSigmaForAverages(config.nex).toFixed(4)}.`;
+}
+
+function updateParameterReadouts(config) {
+  const model = MODELS[mode];
   els.imageTitle.textContent = model.title;
   els.sequenceReadout.textContent = model.short;
   els.parameterReadout.textContent = mode === "gre"
@@ -111,11 +163,7 @@ function updateReadouts(config, minimum, maximum, displayMinimum, displayMaximum
     : mode === "se"
       ? `TR ${format(config.tr)} ms · TE ${format(config.te)} ms · NEX ${config.nex}`
       : `TI ${format(config.ti)} ms · TR ${format(config.tr)} ms · TE ${format(config.te)} ms · NEX ${config.nex}`;
-  els.rangeReadout.textContent = `${minimum.toFixed(3)} to ${maximum.toFixed(3)}`;
   els.acquisitionReadout.textContent = formatDuration(acquisitionTimeSeconds(config.tr, HEIGHT, config.nex));
-  els.scaleMax.textContent = displayMaximum.toFixed(3);
-  els.scaleMin.textContent = displayMinimum.toFixed(3);
-  els.interpretation.textContent = `${model.interpretation} With NEX ${config.nex}, the noise standard deviation is σ = ${noiseSigmaForAverages(config.nex).toFixed(4)}.`;
 }
 
 function displayRange(minimum, maximum) {
